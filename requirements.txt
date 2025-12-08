@@ -1,0 +1,13 @@
+# Dependencias del proyecto Smart Home IoT
+
+# MQTT
+paho-mqtt==1.6.1
+
+# Base de datos
+mysql-connector-python==8.2.0
+
+# ThingSpeak / HTTP requests
+requests==2.31.0
+
+# Utilidades
+python-dotenv==1.0.0
