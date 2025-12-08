@@ -1,138 +1,137 @@
 """
-Suscriptor MQTT - Smart Home IoT
-Script para monitorear todos los mensajes del sistema desde el escritorio
+Suscriptor MQTT con MySQL
+Recibe datos del ESP32 via MQTT y guarda en MySQL
 """
-
 import paho.mqtt.client as mqtt
+import mysql.connector
+from mysql.connector import Error
 import json
 import ssl
-from datetime import datetime
-from configuracion import MQTT_CONFIG, TOPICS
 
-class SuscriptorSmartHome:
-    """Cliente MQTT para suscribirse y monitorear mensajes"""
-    
-    def __init__(self):
-        """Inicializa el suscriptor"""
-        self.cliente = mqtt.Client(client_id="monitor_escritorio")
-        self.cliente.username_pw_set(MQTT_CONFIG["usuario"], MQTT_CONFIG["password"])
-        
-        # Configurar TLS/SSL
-        if MQTT_CONFIG["usar_tls"]:
-            self.cliente.tls_set(cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLS)
-        
-        # Callbacks
-        self.cliente.on_connect = self.on_connect
-        self.cliente.on_message = self.on_message
-        self.cliente.on_disconnect = self.on_disconnect
-        
-        self.conectado = False
-    
-    def on_connect(self, client, userdata, flags, rc):
-        """Callback cuando se conecta al broker"""
-        if rc == 0:
-            print("=" * 70)
-            print("✅ CONECTADO A BROKER MQTT")
-            print(f"   Broker: {MQTT_CONFIG['broker']}")
-            print(f"   Puerto: {MQTT_CONFIG['puerto']}")
-            print("=" * 70)
-            self.conectado = True
-            
-            # Suscribirse a todos los topics
-            print("\n📬 Suscribiéndose a topics:")
-            for nombre, topic in TOPICS.items():
-                self.cliente.subscribe(topic)
-                print(f"   ✓ {topic}")
-            
-            print("\n🔍 Monitoreando mensajes... (Ctrl+C para salir)\n")
-            print("-" * 70)
-        else:
-            print(f"❌ Error de conexión. Código: {rc}")
-            self.conectado = False
-    
-    def on_message(self, client, userdata, msg):
-        """Callback cuando llega un mensaje"""
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+# Configuracion MQTT
+BROKER = "smarthome-utp-310d528f.a02.usw2.aws.hivemq.cloud"
+PORT = 8883
+USERNAME = "esp32_client"
+PASSWORD = "proyectoDS8"
+
+TOPICS = [
+    "smarthome/sensores",
+    "smarthome/alertas",
+    "smarthome/control"
+]
+
+# Configuracion MySQL
+MYSQL_CONFIG = {
+    "host": "localhost",
+    "user": "root",
+    "password": "1234",  # ← CAMBIA ESTO
+    "database": "smart_home_db"
+}
+
+def conectar_mysql():
+    """Conecta a MySQL"""
+    try:
+        conn = mysql.connector.connect(**MYSQL_CONFIG)
+        print(f"Conectado a MySQL: {MYSQL_CONFIG['database']}")
+        return conn
+    except Error as e:
+        print(f"Error conectando a MySQL: {e}")
+        exit(1)
+
+db_conn = conectar_mysql()
+
+def on_connect(client, userdata, flags, rc):
+    """Callback al conectar"""
+    if rc == 0:
+        print("Conectado a HiveMQ Cloud")
+        for topic in TOPICS:
+            client.subscribe(topic)
+            print(f"  Suscrito a: {topic}")
+    else:
+        print(f"Error de conexion MQTT: {rc}")
+
+def on_message(client, userdata, msg):
+    """Callback al recibir mensaje"""
+    try:
         topic = msg.topic
+        payload = msg.payload.decode()
         
+        print(f"\n{'='*50}")
+        print(f"Topic: {topic}")
+        print(f"Datos: {payload}")
+        
+        # Parsear JSON
         try:
-            # Intentar decodificar como JSON
-            payload = json.loads(msg.payload.decode())
+            data = json.loads(payload)
+        except:
+            data = {"raw": payload}
+        
+        cursor = db_conn.cursor()
+        
+        # Guardar segun topic
+        if topic == "smarthome/sensores":
+            cursor.execute('''
+                INSERT INTO lecturas_sensores 
+                (temperatura, humedad, movimiento, relay_estado)
+                VALUES (%s, %s, %s, %s)
+            ''', (
+                data.get("temperatura"),
+                data.get("humedad"),
+                1 if data.get("movimiento") else 0,
+                1 if data.get("relay_estado") else 0
+            ))
+            print("GUARDADO en lecturas_sensores")
             
-            print(f"\n📨 MENSAJE RECIBIDO [{timestamp}]")
-            print(f"   Topic: {topic}")
-            print(f"   Datos:")
+        elif topic == "smarthome/alertas":
+            cursor.execute('''
+                INSERT INTO eventos 
+                (tipo, descripcion, ubicacion)
+                VALUES (%s, %s, %s)
+            ''', (
+                data.get("tipo", "alerta"),
+                json.dumps(data),
+                data.get("ubicacion", "desconocida")
+            ))
+            print("GUARDADO en eventos")
             
-            # Formatear según el topic
-            if topic == TOPICS["sensores"]:
-                print(f"      🌡️  Temperatura: {payload.get('temperatura', 'N/A')}°C")
-                print(f"      💧 Humedad: {payload.get('humedad', 'N/A')}%")
-                print(f"      🚶 Movimiento: {'SÍ' if payload.get('movimiento') else 'NO'}")
-                print(f"      🔌 Relay: {'ON' if payload.get('relay') else 'OFF'}")
-            
-            elif topic == TOPICS["alertas"]:
-                print(f"      🚨 Tipo: {payload.get('tipo', 'N/A')}")
-                print(f"      🌡️  Temperatura: {payload.get('temperatura', 'N/A')}°C")
-                print(f"      💧 Humedad: {payload.get('humedad', 'N/A')}%")
-            
-            elif topic == TOPICS["control"]:
-                print(f"      🎛️  Dispositivo: {payload.get('dispositivo', 'N/A')}")
-                print(f"      ⚙️  Acción: {payload.get('accion', 'N/A')}")
-            
-            else:
-                # Mostrar JSON completo
-                for key, value in payload.items():
-                    print(f"      {key}: {value}")
-            
-            print("-" * 70)
-            
-        except json.JSONDecodeError:
-            # Si no es JSON, mostrar payload directo
-            print(f"\n📨 MENSAJE [{timestamp}]")
-            print(f"   Topic: {topic}")
-            print(f"   Payload: {msg.payload.decode()}")
-            print("-" * 70)
-    
-    def on_disconnect(self, client, userdata, rc):
-        """Callback cuando se desconecta"""
-        print("\n⚠️  Desconectado del broker")
-        self.conectado = False
-    
-    def conectar(self):
-        """Conecta al broker MQTT"""
-        try:
-            print("\n🔗 Conectando a broker MQTT...")
-            self.cliente.connect(
-                MQTT_CONFIG["broker"],
-                MQTT_CONFIG["puerto"],
-                MQTT_CONFIG["timeout"]
-            )
-            return True
-        except Exception as e:
-            print(f"❌ Error conectando: {e}")
-            return False
-    
-    def iniciar(self):
-        """Inicia el loop de escucha"""
-        if self.conectar():
-            try:
-                self.cliente.loop_forever()
-            except KeyboardInterrupt:
-                print("\n\n⛔ Deteniendo monitor...")
-                self.cliente.disconnect()
-                print("✅ Monitor detenido correctamente")
+        elif topic == "smarthome/control":
+            cursor.execute('''
+                INSERT INTO comandos 
+                (comando, parametros)
+                VALUES (%s, %s)
+            ''', (
+                data.get("comando", payload),
+                json.dumps(data)
+            ))
+            print("GUARDADO en comandos")
+        
+        db_conn.commit()
+        print(f"{'='*50}\n")
+        
+    except Error as e:
+        print(f"Error MySQL: {e}")
+    except Exception as e:
+        print(f"Error: {e}")
 
+# Cliente MQTT
+client = mqtt.Client()
+client.username_pw_set(USERNAME, PASSWORD)
+client.tls_set(cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLS)
+client.on_connect = on_connect
+client.on_message = on_message
 
-def main():
-    """Función principal"""
-    print("\n" + "=" * 70)
-    print("🏠 SMART HOME IOT - MONITOR MQTT")
-    print("   Universidad Tecnológica de Panamá")
-    print("=" * 70)
+# Conectar
+print("\nConectando a HiveMQ Cloud...")
+try:
+    client.connect(BROKER, PORT, 60)
+    print("Escuchando mensajes MQTT y guardando en MySQL...")
+    print("Presiona Ctrl+C para detener\n")
+    client.loop_forever()
     
-    monitor = SuscriptorSmartHome()
-    monitor.iniciar()
-
-
-if __name__ == "__main__":
-    main()
+except KeyboardInterrupt:
+    print("\nDetenido por usuario")
+    db_conn.close()
+except Exception as e:
+    print(f"Error: {e}")
+    if db_conn:
+        db_conn.close()

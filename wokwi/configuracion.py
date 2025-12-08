@@ -51,7 +51,7 @@ PARAMETROS = {
 }
 
 CONFIGURACION_THINGSPEAK = {
-    "api_key": "TU_API_KEY_AQUI",
-    "canal_id": "TU_CANAL_ID",
+    "api_key": "LTW26AZJYVJYKKT9",
+    "canal_id": "3195638",
     "url": "https://api.thingspeak.com/update"
 }
