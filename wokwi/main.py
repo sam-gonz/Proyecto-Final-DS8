@@ -1,9 +1,4 @@
-"""
-Programa Principal - Smart Home IoT
-Raspberry Pi Pico W
 
-Este archivo orquesta todos los módulos del sistema
-"""
 
 import time
 import ujson
@@ -14,7 +9,7 @@ from conectividad import GestorConectividad
 from automatizacion import GestorAutomatizacion
 from utilidades import *
 
-# ==================== VARIABLES GLOBALES ====================
+#  VARIABLES GLOBALES 
 
 # Gestores del sistema
 gestor_sensores = None
@@ -25,15 +20,11 @@ gestor_automatizacion = None
 # Contador de ciclos
 contador_ciclos = 0
 
-# ==================== CALLBACKS ====================
+#  CALLBACKS 
 
 def callback_mqtt(topic, msg):
     """
     Callback para procesar mensajes MQTT entrantes
-    
-    Args:
-        topic: Topic del mensaje
-        msg: Contenido del mensaje
     """
     global gestor_actuadores
     
@@ -73,7 +64,7 @@ def callback_mqtt(topic, msg):
     except Exception as e:
         log_evento("ERROR", f"Error procesando comando MQTT: {e}")
 
-# ==================== FUNCIONES PRINCIPALES ====================
+#  FUNCIONES PRINCIPALES 
 
 def inicializar_sistema():
     """Inicializa todos los componentes del sistema"""
@@ -140,7 +131,7 @@ def inicializar_sistema():
     
     imprimir_separador()
     log_evento("SUCCESS", "Sistema inicializado correctamente")
-    print("\n🚀 Iniciando loop principal...\n")
+    print("\n Iniciando loop principal...\n")
 
 def ejecutar_loop_principal():
     """Loop principal del sistema"""
@@ -213,7 +204,7 @@ def limpiar_y_finalizar():
     log_evento("SUCCESS", "Sistema finalizado correctamente")
     print("=" * 60 + "\n")
 
-# ==================== PUNTO DE ENTRADA ====================
+#  PUNTO DE ENTRADA 
 
 def main():
     """Función principal del programa"""

@@ -26,7 +26,7 @@ class GestorAutomatizacion:
         
         self.ultima_alerta_movimiento = 0
         
-        print("✅ Gestor de automatización inicializado")
+        print(" Gestor de automatización inicializado")
     
     def control_climatizacion(self):
         """
@@ -54,12 +54,6 @@ class GestorAutomatizacion:
         """
         Procesa detección de movimiento y genera alerta
         
-        Args:
-            conectividad: Instancia de GestorConectividad
-            topic_alertas: Topic MQTT para alertas
-            
-        Returns:
-            bool: True si se generó alerta
         """
         if not self.sensores.obtener_estado_movimiento():
             return False
@@ -70,7 +64,7 @@ class GestorAutomatizacion:
         if tiempo_actual - self.ultima_alerta_movimiento < self.cooldown_alerta:
             return False
         
-        print("🚨 ¡ALERTA! Movimiento detectado")
+        print(" ¡ALERTA! Movimiento detectado")
         
         # Activar buzzer
         self.actuadores.buzzer_alerta()

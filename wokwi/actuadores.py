@@ -34,7 +34,7 @@ class GestorActuadores:
         # Apagar todo al iniciar
         self.apagar_todo()
         
-        print("✅ Actuadores inicializados")
+        print(" Actuadores inicializados")
     
     def activar_relay(self):
         """Activa el relay (enciende ventilador/luz)"""
@@ -127,8 +127,8 @@ class GestorActuadores:
         self.desactivar_relay()
         self.led_apagar()
         self.buzzer.value(0)
-        print("🔕 Todos los actuadores apagados")
+        print(" Todos los actuadores apagados")
     
     def mostrar_estado(self):
         """Muestra el estado actual de los actuadores"""
-        print(f"🎛️ Estado: Relay={'ON' if self.relay_activo else 'OFF'} | LED=RGB{self.color_led_actual}")
+        print(f" Estado: Relay={'ON' if self.relay_activo else 'OFF'} | LED=RGB{self.color_led_actual}")

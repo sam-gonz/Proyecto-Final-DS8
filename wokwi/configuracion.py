@@ -4,14 +4,13 @@ Raspberry Pi Pico W - MicroPython
 Proyecto Final - Desarrollo de Software VIII
 """
 
-# ==================== CONFIGURACIÓN WIFI ====================
 WIFI_SSID = "Wokwi-GUEST"
 WIFI_PASSWORD = ""
 
-# ==================== CONFIGURACIÓN MQTT ====================
-# ACTUALIZAR CON TUS CREDENCIALES DE HIVEMQ CLOUD
+# CONFIGURACIÓN MQTT 
+
 CONFIGURACION_MQTT = {
-    "broker": "smarthome-utp-310d528f.a02.usw2.aws.hivemq.cloud",  # Ej: abc123xyz.s2.eu.hivemq.cloud
+    "broker": "smarthome-utp-310d528f.a02.usw2.aws.hivemq.cloud",  
     "puerto": 8883,
     "usuario": "esp32_client",
     "password": "proyectoDS8",
@@ -28,7 +27,7 @@ TOPICS_MQTT = {
     "estado": "smarthome/estado"
 }
 
-# ==================== PINES GPIO - RASPBERRY PI PICO W ====================
+#  PINES GPIO 
 PINES = {
     "dht": 15,           # GPIO15 - Sensor DHT22 (Temp/Humedad)
     "pir": 14,           # GPIO14 - Sensor PIR (Movimiento)
@@ -41,7 +40,7 @@ PINES = {
     "lcd_scl": 21        # GPIO21 - Display LCD I2C SCL
 }
 
-# ==================== PARÁMETROS DEL SISTEMA ====================
+#  PARÁMETROS DEL SISTEMA 
 PARAMETROS = {
     "temp_maxima": 28.0,           # °C - Activar ventilador
     "temp_minima": 25.0,           # °C - Desactivar ventilador

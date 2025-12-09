@@ -8,14 +8,13 @@ import time
 def imprimir_banner():
     """Imprime el banner inicial del sistema"""
     print("\n" + "=" * 60)
-    print("🏠 SISTEMA SMART HOME IOT")
-    print("   Raspberry Pi Pico W + MicroPython")
+    print(" SISTEMA SMART HOME IOT")
+    print("   MicroPython")
     print("   Universidad Tecnológica de Panamá")
     print("   Desarrollo de Software VIII")
     print("=" * 60 + "\n")
 
 def imprimir_separador(texto=""):
-    """Imprime un separador visual con texto opcional"""
     if texto:
         print(f"\n{'─' * 20} {texto} {'─' * 20}")
     else:
@@ -59,9 +58,6 @@ def log_evento(tipo, mensaje):
     """
     Registra un evento en consola con formato
     
-    Args:
-        tipo: Tipo de evento (INFO, WARN, ERROR, etc.)
-        mensaje: Mensaje a mostrar
     """
     iconos = {
         "INFO": "ℹ️",
@@ -70,5 +66,5 @@ def log_evento(tipo, mensaje):
         "SUCCESS": "✅",
         "DATA": "📊"
     }
-    icono = iconos.get(tipo, "📝")
+    icono = iconos.get(tipo, "")
     print(f"{icono} [{tipo}] {mensaje}")

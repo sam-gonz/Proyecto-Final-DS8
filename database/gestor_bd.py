@@ -9,7 +9,7 @@ from mysql.connector import Error
 MYSQL_CONFIG = {
     "host": "localhost",
     "user": "root",
-    "password": "1234",  # ← CAMBIA ESTO
+    "password": "1234",
     "database": "smart_home_db"
 }
 

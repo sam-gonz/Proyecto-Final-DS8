@@ -1,8 +1,3 @@
--- ============================================================
--- BASE DE DATOS: SISTEMA SMART HOME IOT
--- Proyecto Final - Desarrollo de Software VIII
--- Universidad Tecnológica de Panamá
--- ============================================================
 
 -- Crear base de datos
 CREATE DATABASE IF NOT EXISTS smarthome_iot
@@ -11,10 +6,9 @@ COLLATE utf8mb4_unicode_ci;
 
 USE smarthome_iot;
 
--- ============================================================
 -- TABLA: lecturas_sensores
 -- Almacena todas las lecturas de temperatura y humedad
--- ============================================================
+
 CREATE TABLE IF NOT EXISTS lecturas_sensores (
     id INT AUTO_INCREMENT PRIMARY KEY,
     temperatura DECIMAL(5,2) NOT NULL COMMENT 'Temperatura en grados Celsius',
@@ -24,10 +18,8 @@ CREATE TABLE IF NOT EXISTS lecturas_sensores (
     INDEX idx_temperatura (temperatura)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Registro histórico de lecturas de sensores';
 
--- ============================================================
 -- TABLA: eventos_movimiento
 -- Registra detecciones de movimiento por el sensor PIR
--- ============================================================
 CREATE TABLE IF NOT EXISTS eventos_movimiento (
     id INT AUTO_INCREMENT PRIMARY KEY,
     detectado BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Indica si se detectó movimiento',
@@ -38,10 +30,8 @@ CREATE TABLE IF NOT EXISTS eventos_movimiento (
     INDEX idx_detectado (detectado)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Registro de eventos de detección de movimiento';
 
--- ============================================================
 -- TABLA: comandos_control
 -- Registra todos los comandos ejecutados en el sistema
--- ============================================================
 CREATE TABLE IF NOT EXISTS comandos_control (
     id INT AUTO_INCREMENT PRIMARY KEY,
     dispositivo VARCHAR(50) NOT NULL COMMENT 'Nombre del dispositivo (relay, led, buzzer)',
@@ -54,10 +44,8 @@ CREATE TABLE IF NOT EXISTS comandos_control (
     INDEX idx_origen (origen)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Historial de comandos ejecutados';
 
--- ============================================================
 -- TABLA: estados_sistema
 -- Almacena estados periódicos del sistema completo
--- ============================================================
 CREATE TABLE IF NOT EXISTS estados_sistema (
     id INT AUTO_INCREMENT PRIMARY KEY,
     relay_activo BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Estado del relay (ventilador/luz)',
@@ -71,10 +59,8 @@ CREATE TABLE IF NOT EXISTS estados_sistema (
     INDEX idx_fecha_hora (fecha_hora)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Snapshots periódicos del estado del sistema';
 
--- ============================================================
 -- TABLA: alertas_sistema
 -- Almacena alertas generadas por el sistema
--- ============================================================
 CREATE TABLE IF NOT EXISTS alertas_sistema (
     id INT AUTO_INCREMENT PRIMARY KEY,
     tipo_alerta VARCHAR(50) NOT NULL COMMENT 'Tipo de alerta (movimiento, temperatura, error)',
@@ -87,10 +73,8 @@ CREATE TABLE IF NOT EXISTS alertas_sistema (
     INDEX idx_fecha_hora (fecha_hora)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Registro de alertas del sistema';
 
--- ============================================================
 -- TABLA: configuracion_sistema
 -- Almacena configuraciones del sistema
--- ============================================================
 CREATE TABLE IF NOT EXISTS configuracion_sistema (
     id INT AUTO_INCREMENT PRIMARY KEY,
     clave VARCHAR(100) NOT NULL UNIQUE COMMENT 'Clave de configuración',
@@ -100,9 +84,7 @@ CREATE TABLE IF NOT EXISTS configuracion_sistema (
     INDEX idx_clave (clave)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Parámetros de configuración del sistema';
 
--- ============================================================
 -- INSERTAR CONFIGURACIONES INICIALES
--- ============================================================
 INSERT INTO configuracion_sistema (clave, valor, descripcion) VALUES
 ('temp_maxima', '28.0', 'Temperatura máxima antes de activar ventilador (°C)'),
 ('temp_minima', '25.0', 'Temperatura mínima para desactivar ventilador (°C)'),
@@ -111,9 +93,7 @@ INSERT INTO configuracion_sistema (clave, valor, descripcion) VALUES
 ('cooldown_alerta', '5', 'Tiempo mínimo entre alertas de movimiento (segundos)')
 ON DUPLICATE KEY UPDATE valor=VALUES(valor);
 
--- ============================================================
 -- VISTAS ÚTILES
--- ============================================================
 
 -- Vista: Últimas 100 lecturas con información completa
 CREATE OR REPLACE VIEW vista_lecturas_recientes AS
@@ -131,7 +111,6 @@ FROM lecturas_sensores
 ORDER BY fecha_hora DESC
 LIMIT 100;
 
--- Vista: Resumen de eventos de movimiento por hora
 CREATE OR REPLACE VIEW vista_movimientos_por_hora AS
 SELECT 
     DATE_FORMAT(fecha_hora, '%
