@@ -27,7 +27,7 @@ class GestorSensores:
         self.movimiento = False
         self.ultima_lectura_exitosa = 0
         
-        print("✅ Sensores inicializados")
+        print(" Sensores inicializados")
     
     def leer_temperatura_humedad(self):
         """
@@ -44,7 +44,7 @@ class GestorSensores:
             return (self.temperatura, self.humedad)
         
         except OSError as e:
-            print(f"⚠️ Error leyendo DHT22: {e}")
+            print(f" Error leyendo DHT22: {e}")
             return (None, None)
     
     def leer_movimiento(self):
@@ -88,4 +88,4 @@ class GestorSensores:
     
     def mostrar_lecturas(self):
         """Imprime las lecturas actuales en consola de forma formateada"""
-        print(f"📊 Temp: {self.temperatura:.1f}°C | Humedad: {self.humedad:.1f}% | Movimiento: {'SÍ' if self.movimiento else 'NO'}")
+        print(f" Temp: {self.temperatura:.1f}°C | Humedad: {self.humedad:.1f}% | Movimiento: {'SÍ' if self.movimiento else 'NO'}")
